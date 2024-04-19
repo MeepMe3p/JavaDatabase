@@ -1,5 +1,7 @@
 package com.example.csit228_f1_v2;
 
+import com.example.csit228_f1_v2.Database.DatabaseMethod;
+import com.example.csit228_f1_v2.Database.MySQLConnection;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -91,6 +93,7 @@ public class HelloApplication extends Application {
             public void handle(MouseEvent mouseEvent) {
                 tmpPassword.setVisible(false);
                 pfPassword.setText(tmpPassword.getText());
+
             }
         };
 
@@ -99,7 +102,11 @@ public class HelloApplication extends Application {
         grid.add(btnShow, 2,2);
 
         Button btnLogin = new Button("Log In");
+        Button btnRegister = new Button("Register");
+
         btnLogin.setFont(Font.font(40));
+        btnRegister.setFont(Font.font(40));
+        grid.add(btnRegister,0,8,3,3);
         grid.add(btnLogin, 0, 3, 2, 1);
 
         btnLogin.setOnAction(new EventHandler<ActionEvent>() {
@@ -108,6 +115,24 @@ public class HelloApplication extends Application {
                 System.out.println("Hello");
                 try {
                     Parent p = FXMLLoader.load(getClass().getResource("homepage.fxml"));
+
+                    Scene s = new Scene(p);
+                    stage.setScene(s);
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        btnRegister.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                System.out.println("Hello");
+                try {
+                    Parent p = FXMLLoader.load(getClass().getResource("homepage.fxml"));
+                    String uname = tfUsername.getText();
+                    String pass = pfPassword.getText();
+                    DatabaseMethod.registerUser(uname,pass);
                     Scene s = new Scene(p);
                     stage.setScene(s);
                     stage.show();
@@ -125,6 +150,7 @@ public class HelloApplication extends Application {
     }
 
     public static void main(String[] args) {
+        MySQLConnection.getConnection();
         launch();
     }
 }
