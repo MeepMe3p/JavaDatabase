@@ -1,9 +1,6 @@
 package com.example.csit228_f1_v2.Database;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class DatabaseMethod {
     public static void registerUser(String username, String password){
@@ -35,6 +32,45 @@ public class DatabaseMethod {
             throw new RuntimeException(e);
         }
         return true;
+    }
+
+    public static void initDb(){
+        try(Connection conn = MySQLConnection.getConnection();
+        Statement statement = conn.createStatement()){
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS tblUserAccount(" +
+                            "user_id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+                            "username TEXT UNIQUE NOT NULL," +
+                            "password VARCHAR(100) NOT NULL" +
+                            ");"
+            );
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS tblArtifacts(" +
+                            "artifact_id INTEGER PRIMARY KEY AUTO_INCREMENT," +
+                            "user_id INTEGER UNIQUE," +
+                            "artifact_name TEXT," +
+                            "main_stat TEXT," +
+                            "subStat_1 TEXT," +
+                            "subStat_2 TEXT," +
+                            "subStat_3 TEXT," +
+                            "subStat_4 TEXT," +
+                            "artifact_type TEXT," +
+                            "FOREIGN KEY(user_id) REFERENCES tblUserAccount(user_id)" +
+                            ");"
+            );
+            statement.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS tblEquipped(" +
+                            "user_id INTEGER," +
+                            "artifact_id INTEGER," +
+                            "artifact_type TEXT," +
+                            "FOREIGN KEY(user_id) REFERENCES tblUserAccount(user_id)," +
+                            "FOREIGN KEY(artifact_id) REFERENCES tblArtifacts(artifact_id)" +
+                            ");"
+            );
+        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+            e.printStackTrace();
+        }
     }
 
 }
