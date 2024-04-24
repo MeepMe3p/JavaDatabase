@@ -1,9 +1,18 @@
 package com.example.csit228_f1_v2.Database;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
 import java.sql.*;
+import java.time.Period;
 
 public class DatabaseMethod {
     public static int currentlyLoggedIn;
+    public static int flowerEquipped;
+    public static int featherEquipped;
+    public static int gobletEquipped;
+    public static int sandsEquipped;
+    public static int circletEquipped;
     public static void registerUser(String username, String password) throws SQLIntegrityConstraintViolationException {
         try(Connection conn = MySQLConnection.getConnection();
         PreparedStatement statement = conn.prepareStatement(
@@ -99,14 +108,99 @@ public class DatabaseMethod {
                             "user_id INTEGER," +
                             "artifact_id INTEGER," +
                             "artifact_type TEXT," +
-                            "FOREIGN KEY(user_id) REFERENCES tblUserAccount(user_id)," +
-                            "FOREIGN KEY(artifact_id) REFERENCES tblArtifacts(artifact_id)" +
+                            "FOREIGN KEY(user_id) REFERENCES tblUserAccount(user_id) ON DELETE CASCADE,"+
+                            "FOREIGN KEY(artifact_id) REFERENCES tblArtifacts(artifact_id) ON DELETE CASCADE" +
                             ");"
             );
         } catch (SQLException e) {
 //            throw new RuntimeException(e);
             e.printStackTrace();
         }
+    }
+    public static ObservableList<String> getArtifacts(int id,String arti_type){
+        ObservableList<String> artifacts = FXCollections.observableArrayList();
+        String name,type,main,sub1,sub2,sub3,sub4,artifact_id;
+
+        try(Connection conn = MySQLConnection.getConnection();
+            PreparedStatement statement = conn.prepareStatement(
+                    "SELECT user_id,  artifact_name,artifact_type,main_stat" +
+                            ", subStat_1, subStat_2, subStat_3,subStat_4, artifact_id FROM tblartifacts " +
+                            "WHERE user_id = ? AND artifact_type = ?"
+            )) {
+            statement.setInt(1,id);
+            statement.setString(2,arti_type);
+            ResultSet rs = statement.executeQuery();
+            while(rs.next()){
+//            System.out.println(id+" idddd");
+//                System.out.println("sulold here");
+                name = rs.getString(2);
+                type = rs.getString(3);
+                main = rs.getString(4);
+                sub1 = rs.getString(5);
+                sub2 = rs.getString(6);
+                sub3 = rs.getString(7);
+                sub4 = rs.getString(8);
+                artifact_id = rs.getString(9);
+
+
+                artifacts.add(name+" | "+type+" | "+ main+" | "+ sub1+" | "+ sub2 + " | " + sub3 +" | "+sub4+" | "+artifact_id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return artifacts;
+
+//        loop
+//        artifacts = resultset string
+//        artifacts.add
+//        cb.setItems(artifacts)
+
+        }
+        public static void updateArtifacts(String type){
+            try(Connection conn = MySQLConnection.getConnection();
+                PreparedStatement statement = conn.prepareStatement(
+                        "UPDATE tblartifacts SET subStat_1 = 'Crit Damage +99.8%', subStat_2 = 'Crit Rate +48.8%', subStat_3 = 'Atk% +13.5%', subStat_4 = 'HP% +190%' WHERE user_id = ? AND artifact_type = ?"
+                )) {
+                statement.setInt(1,currentlyLoggedIn);
+                statement.setString(2,type);
+                System.out.println("update");
+                statement.executeUpdate();
+
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    public static void deleteSelected(String type){
+        try(Connection conn = MySQLConnection.getConnection();
+        PreparedStatement statement = conn.prepareStatement(
+                "DELETE FROM tblartifacts WHERE user_id = ? AND artifact_type = ?"
+        )) {
+            statement.setInt(1,currentlyLoggedIn);
+            statement.setString(2,type);
+            statement.executeUpdate();
+            System.out.println("deleted all "+ type+ " of User_id "+currentlyLoggedIn);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+    public static boolean isTableEmpty(String tableName){
+        try(Connection conn = MySQLConnection.getConnection();
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT COUNT(*) FROM " + tableName
+        )) {
+            ResultSet set = statement.executeQuery();
+            if(set.next()){
+                int rowCount = set.getInt(1);
+                return rowCount == 0;
+            }else{
+                return true;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

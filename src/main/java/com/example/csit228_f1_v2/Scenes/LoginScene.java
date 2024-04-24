@@ -101,6 +101,7 @@ public class LoginScene extends AnchorPane {
                     User user = User.getInstance();
                     user.setUsername(username.getText());
                     user.setUserId(i);
+                    System.out.println(i+"this is the id of the yes");
                     MainScene mainScene = new MainScene(stage);
                     Scene s = new Scene(mainScene);
                     stage.setScene(s);
